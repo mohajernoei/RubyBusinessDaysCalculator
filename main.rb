@@ -1,30 +1,27 @@
-require 'jalalidate' 
-require 'date'
 require './utils'
 
-
 ###################################################################
- puts "* Task 1"
+ puts "\n\n\n*** Task 1"
  print "**************************\n\n Press 1 for Jalali and 2 for Gregorian current date. Otherwise, Ctrl+C\n"
- tabdil = gets.chomp
- if tabdil == '1'
+ type = gets.chomp
+ if type == '1'
   puts JalaliDate.today.strftime('%a %d %b %Y')
- elsif tabdil ==  '2'
+ elsif type ==  '2'
   puts Date.today.strftime('%a %d %b %Y')
  else puts "Not an option!"
  end
 
  ################################################################## 
- puts "* Task 2"
+ puts "\n\n\n*** Task 2"
  print "**************************\n\n choose the calendar format. Press 1 for Jalali and 2 for Gregorian. Otherwise, Ctrl+C\n"
- tabdil = gets.chomp
+ type = gets.chomp
  print "**************************\n\n Insert the Start date(format: yyyy/m/d). Otherwise, Ctrl+C\n"
- startd = gets
+ prior_date = gets
  print "**************************\n\n Insert the end date(format: yyyy/m/d). Otherwise, Ctrl+C\n"
- endd = gets
+ later_date = gets
  
-first_date =  JGtime.new(startd,tabdil)
-second_date = JGtime.new(endd,tabdil)
+first_date =  JGtime.new(prior_date,type)
+second_date = JGtime.new(later_date,type)
 puts (second_date - first_date)
 puts (second_date / first_date)
 

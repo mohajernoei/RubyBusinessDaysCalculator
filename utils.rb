@@ -1,120 +1,63 @@
 require 'date'
 require 'jalalidate'
 
-#These are predefined holidays manually entered as an array!
+=begin
+These are predefined holidays manually entered as an array!
+Which represent the holidays in Gregorian.
+=end
 $holidays = [[3, 21], [3, 22], [3, 23], [3, 24], [4, 1], [4, 2], [6, 4], [6, 5], [2, 11], [3, 20]]
 
-
-def jalaliwd(x)
-  case x[0,3]
-  when 'Sat'
-    return "ش"
-  when 'Sun'
-    return "ی"
-  when "Mon"
-    return "د"
-  when "Tue"
-    return "س"
-  when "Wed"
-    return "چ"
-  when "Thu"
-    return "پ"
-  when "Fri"
-    return "ج"
-  end
-end
-  
-def jalali_month(x)
-  case x
-  when 1
-    return 'Farvardin '
-  when 2
-    return 'Ordibehesht '
-  when 3
-    return 'Khordad '
-  when 4
-    return 'Tir '
-  when 5
-    return 'Mordad '
-  when 6
-    return 'Shahrivar '
-  when 7
-    return 'Mehr '
-  when 8
-    return 'Aban '
-  when 9
-    return 'Azar '
-  when 10
-    return 'Dey '
-  when 11
-    return 'Bahman '
-  when 12
-    return 'Esfand '
-  end
-end
-
-def is_off(d)
-  if d.strftime('%a %d %b %Y')[0,3] =='Thu' or d.strftime('%a %d %b %Y')[0,3] == 'Fri'
+def is_off(dt)
+  if dt.strftime('%a %d %b %Y')[0,3] =='Thu' or dt.strftime('%a %d %b %Y')[0,3] == 'Fri'
     return true
   end
   return false
 end
 
-def is_holy(d)
- if $holidays.include?([d.month,d.day]) 
+def is_holy(dt)
+ if $holidays.include?([dt.month,dt.day]) 
   return true 
 end
  return false
 end
 
-def swap_if_needed(a,b)
-  if b.startg < a.startg 
-  return b,a
-  end
-return a,b
-end
-
-
-
-
 
 
 class JGtime < JalaliDate
-  attr_accessor :startg
-  def initialize(startd,tabdil)
-    s1,s2,s3 = startd.split('/')
-    if tabdil == '1'
-    s1,s2,s3 = super(s1.to_i,s2.to_i,s3.to_i)
-    @startg = Date.new(s1,s2,s3)
+  attr_accessor :selected_date
+  def initialize(slctd_dt,calendar_type)
+    year,month,day = slctd_dt.split('/')
+    if calendar_type == '1'
+    year,month,day = super(year.to_i,month.to_i,day.to_i)
+    @selected_date = Date.new(year,month,day)
     else   
-    @startg = Date.new(s1.to_i,s2.to_i,s3.to_i)
+    @selected_date = Date.new(year.to_i,month.to_i,day.to_i)
     end
     
   end
-  
-  
-  def -(obj)
-    @daily = (self.startg - obj.startg).to_i  
-    return @daily
+
+  def -(prior_date_obj)
+    @daily_difference = (self.selected_date - prior_date_obj.selected_date).to_i  
+    return @daily_difference
     end
   
-  def /(obj)
-    @business = (self.startg - obj.startg).to_i  
-    while (self.startg-obj.startg)%7 != 0
-    if(is_off(obj.startg) or is_holy(obj.startg))
-    @business -= 1
+  def /(prior_date_obj)
+    @business_days = (self.selected_date - prior_date_obj.selected_date).to_i  
+    while (self.selected_date-prior_date_obj.selected_date)%7 != 0
+    if(is_off(prior_date_obj.selected_date) or is_holy(prior_date_obj.selected_date))
+    @business_days -= 1
     end
-    obj.startg += 1
+    prior_date_obj.selected_date += 1
   end
-    for i in obj.startg.year..self.startg.year
+    for yr in prior_date_obj.selected_date.year..self.selected_date.year
       for j in $holidays
-      if obj.startg < Date.new(i,j[0],j[1]) and self.startg > Date.new(i,j[0],j[1]) and  !is_off(Date.new(i,j[0],j[1]))
-        @business -= 1
+      if prior_date_obj.selected_date < Date.new(yr,j[0],j[1]) and self.selected_date > Date.new(yr,j[0],j[1]) and  !is_off(Date.new(yr,j[0],j[1]))
+        @business_days -= 1
       end
      end
     end
-    @business -= @business*2/7
-    return @daily,@business
+    @business_days -= @business_days*2/7
+    return @daily_difference,@business_days
     
   
   end
