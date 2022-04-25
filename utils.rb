@@ -68,41 +68,55 @@ end
 end
 
 def swap_if_needed(a,b)
-  if b<a
+  if b.startg < a.startg 
   return b,a
   end
 return a,b
 end
 
 
-def duration(startd,endd,tabdil)
-  s1,s2,s3 = startd.split('/')
-  e1,e2,e3 = endd.split('/')
-  if tabdil == '1'
-  startg = JalaliDate.new(s1.to_i,s2.to_i,s3.to_i).to_gregorian
-  endg = JalaliDate.new(e1.to_i,e2.to_i,e3.to_i).to_gregorian
-  else   
-  startg = Date.new(s1.to_i,s2.to_i,s3.to_i)
-  endg = Date.new(e1.to_i,e2.to_i,e3.to_i)
-  end
-  startg,endg = swap_if_needed(startg,endg)
-  business = daily = (endg - startg).to_i
-  
-  while (endg-startg)%7 != 0
-  if(is_off(startg) or is_holy(startg))
-  business -= 1
-  end
-  startg += 1
-  end
-  for i in startg.year..endg.year
-    for j in $holidays
-    if startg < Date.new(i,j[0],j[1]) and endg > Date.new(i,j[0],j[1]) and  !is_off(Date.new(i,j[0],j[1]))
-      business -= 1
+
+
+
+
+class JGtime < JalaliDate
+  attr_accessor :startg
+  def initialize(startd,tabdil)
+    s1,s2,s3 = startd.split('/')
+    if tabdil == '1'
+    s1,s2,s3 = super(s1.to_i,s2.to_i,s3.to_i)
+    @startg = Date.new(s1,s2,s3)
+    else   
+    @startg = Date.new(s1.to_i,s2.to_i,s3.to_i)
     end
+    
   end
-end
-  business -= business*2/7
-  return daily,business
+  
+  
+  def -(obj)
+    @daily = (self.startg - obj.startg).to_i  
+    return @daily
+    end
+  
+  def /(obj)
+    @business = (self.startg - obj.startg).to_i  
+    while (self.startg-obj.startg)%7 != 0
+    if(is_off(obj.startg) or is_holy(obj.startg))
+    @business -= 1
+    end
+    obj.startg += 1
   end
-
-
+    for i in obj.startg.year..self.startg.year
+      for j in $holidays
+      if obj.startg < Date.new(i,j[0],j[1]) and self.startg > Date.new(i,j[0],j[1]) and  !is_off(Date.new(i,j[0],j[1]))
+        @business -= 1
+      end
+     end
+    end
+    @business -= @business*2/7
+    return @daily,@business
+    
+  
+  end
+  end
+  

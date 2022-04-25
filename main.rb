@@ -1,6 +1,8 @@
 require 'jalalidate' 
 require 'date'
 require './utils'
+
+
 ###################################################################
  puts "* Task 1"
  print "**************************\n\n Press 1 for Jalali and 2 for Gregorian current date. Otherwise, Ctrl+C\n"
@@ -20,7 +22,9 @@ require './utils'
  startd = gets
  print "**************************\n\n Insert the end date(format: yyyy/m/d). Otherwise, Ctrl+C\n"
  endd = gets
+ 
+first_date =  JGtime.new(startd,tabdil)
+second_date = JGtime.new(endd,tabdil)
+puts (second_date - first_date)
+puts (second_date / first_date)
 
-daily,business = duration(startd,endd,tabdil)
-puts daily
-puts business
